@@ -26,6 +26,7 @@ export default function FindingMatch() {
             source={require("@/assets/images/logo.png")}
             style={{ width: 80, height: 80 }}
           />
+
           <Image
             source={require("@/assets/icons/close.png")}
             style={{ width: 20, height: 20 }}
