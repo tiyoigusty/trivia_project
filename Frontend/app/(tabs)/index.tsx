@@ -14,6 +14,7 @@ export default function HomeScreen() {
       justifyContent: 'center',
       alignItems: 'center',
     },
+    
     container: {
       width: '80%',
       borderRadius: 8,
