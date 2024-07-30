@@ -16,6 +16,66 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
+        name="register"
+        options={{
+          title: "Home",
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name={focused ? "home" : "home-outline"}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="selectavatar"
+        options={{
+          title: "explore",
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name={focused ? "code-slash" : "code-slash-outline"}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="home"
+        options={{
+          title: "Home",
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name={focused ? "code-slash" : "code-slash-outline"}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="diamond"
+        options={{
+          title: "diamond",
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name={focused ? "code-slash" : "code-slash-outline"}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="finding-match"
+        options={{
+          title: "finding",
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name={focused ? "code-slash" : "code-slash-outline"}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="index"
         options={{
           title: "Home",
@@ -43,55 +103,6 @@ export default function TabLayout() {
         name="looser"
         options={{
           title: "looser",
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon
-              name={focused ? "code-slash" : "code-slash-outline"}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="finding-match"
-        options={{
-          title: "finding",
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon
-              name={focused ? "code-slash" : "code-slash-outline"}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="diamond"
-        options={{
-          title: "diamond",
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon
-              name={focused ? "code-slash" : "code-slash-outline"}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="register"
-        options={{
-          title: "Home",
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon
-              name={focused ? "home" : "home-outline"}
-              color={color}
-            />
-          ),
-        }}
-      />
-
-      <Tabs.Screen
-        name="selectavatar"
-        options={{
-          title: "explore",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
               name={focused ? "code-slash" : "code-slash-outline"}
