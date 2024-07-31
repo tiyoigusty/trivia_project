@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { PaymentController } from './payment.controller';
-import { MidtransModule } from './midtrans/midtrans.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   controllers: [PaymentController],
   providers: [PaymentService],
-  imports: [MidtransModule],
+  imports: [ HttpModule],
 })
-export class PaymentModule {}
+export class PaymentModule { }

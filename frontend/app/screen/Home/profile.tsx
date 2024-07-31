@@ -21,6 +21,10 @@ const Profile: React.FC = () => {
         { id: 6, uri: 'https://png.pngtree.com/png-vector/20231019/ourmid/pngtree-user-profile-avatar-png-image_10211467.png', price: 100 },
     ];
 
+    const defaultAvatar = {
+        uri: 'https://png.pngtree.com/element_our/20200610/ourmid/pngtree-character-default-avatar-image_2237203.jpg'
+    };
+
     const handleOpenDialog = () => {
         setDialogVisible(true);
     };
@@ -42,11 +46,7 @@ const Profile: React.FC = () => {
                     onSave={handleSaveSelection}
                     avatars={avatars}
                 />
-                {selectedAvatar && (
-                    <View style={styles.selectedAvatarContainer}>
-                        <Image source={{ uri: selectedAvatar.uri }} style={styles.selectedAvatar} />
-                    </View>
-                )}
+                <Image source={{ uri: selectedAvatar ? selectedAvatar.uri : defaultAvatar.uri }} style={styles.selectedAvatar} />
                 <Button containerStyle={styles.editIcon} title="Open Dialog" onPress={handleOpenDialog}>
                     <Icon name='heartbeat'
                         type='font-awesome' />

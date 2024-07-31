@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from "react-native";
 import { Dialog, Button } from "@rneui/themed";
 import { Avatar } from "./type";
 
@@ -27,6 +27,14 @@ const AvatarSelectionDialog: React.FC<AvatarSelectionDialogProps> = ({
     }
   };
 
+  const handleAvatarSelect = (avatar: any) => {
+    if (avatar.price !== 'FREE') {
+      Alert.alert('Perhatian', 'Mohon isi diamond');
+    } else {
+      setSelectedAvatar(avatar);
+    }
+  };
+
   const getDiamondImage = (price: number | string) => {
     const numericPrice = typeof price === "string" ? parseFloat(price) : price;
     if (numericPrice >= 100) {
@@ -48,10 +56,10 @@ const AvatarSelectionDialog: React.FC<AvatarSelectionDialogProps> = ({
               style={[
                 styles.avatarContainer,
                 selectedAvatar &&
-                  selectedAvatar.id === avatar.id &&
-                  styles.selectedAvatarContainer,
+                selectedAvatar.id === avatar.id &&
+                styles.selectedAvatarContainer,
               ]}
-              onPress={() => setSelectedAvatar(avatar)}
+              onPress={() => handleAvatarSelect(avatar)}
             >
               <Image source={{ uri: avatar.uri }} style={styles.avatar} />
               <View style={styles.priceContainer}>
