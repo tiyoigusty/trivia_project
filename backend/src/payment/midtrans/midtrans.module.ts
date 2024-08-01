@@ -3,6 +3,6 @@ import { MidtransService } from './midtrans.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Module({
-    providers: [MidtransService, PrismaService],
+  providers: [MidtransService, PrismaService],
 })
-export class MidtransModule { }
+export class MidtransModule {}

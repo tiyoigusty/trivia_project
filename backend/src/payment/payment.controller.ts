@@ -1,12 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { MidtransService } from './midtrans/midtrans.service';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { CreatePaymentDto } from './dto/create-payment.dto';
+import { PaymentService } from './payment.service';
 
 @Controller('payment')
 export class PaymentController {
-  constructor(private readonly midtransService: MidtransService) { }
+  constructor(private readonly paymentService: PaymentService) {}
 
-  @Post('create')
-  async create() {
-    return this.midtransService.pay();
+  @Post('pay')
+  async pay(@Body() payment: CreatePaymentDto) {
+    return await this.paymentService.buyDiamond(payment);
+  }
+
+  @Get('status/:invoice')
+  async midtransStatus(@Param('invoice') invoiceId: string) {
+    return await this.paymentService.checkPaymentStatus(invoiceId);
   }
 }

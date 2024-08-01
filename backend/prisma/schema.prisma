@@ -20,8 +20,8 @@ model User {
   name         String
   password     String?
   avatar       String
-  coin         Int
-  diamond      Int
+  coin         Int           @default(0)
+  diamond      Int           @default(0)
   google_id    String
   user_avatar  UserAvatar[]
   userAvatarId String
@@ -51,6 +51,8 @@ model UserAvatar {
 model Avatar {
   id          String       @id @unique @default(uuid())
   image       String
+  coin        Int?
+  diamond     Int?
   user_avatar UserAvatar[]
 
   created_at DateTime @default(now())
@@ -134,14 +136,34 @@ model Question {
 }
 
 model Invoice {
-  id     String  @id @unique @default(uuid())
-  status String
-  amount Int
-  User   User?   @relation(fields: [userId], references: [id])
-  userId String?
+  id        String        @id @unique @default(uuid())
+  status    InvoiceStatus @default(UNPAID)
+  amount    Int
+  User      User?         @relation(fields: [userId], references: [id])
+  userId    String?
+  Diamond   Diamond?      @relation(fields: [diamondId], references: [id])
+  diamondId String?
 
   created_at DateTime @default(now())
   updated_at DateTime @default(now()) @updatedAt
 
   @@map("invoices")
+}
+
+model Diamond {
+  id       String    @id @unique @default(uuid())
+  quantity Int
+  price    Int
+  invoice  Invoice[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  @@map("diamonds")
+}
+
+enum InvoiceStatus {
+  UNPAID
+  PAID
+  CANCLE
 }
