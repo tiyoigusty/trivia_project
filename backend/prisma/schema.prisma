@@ -22,9 +22,8 @@ model User {
   avatar       String
   coin         Int           @default(0)
   diamond      Int           @default(0)
-  google_id    String
+  google_id    String        @unique
   user_avatar  UserAvatar[]
-  userAvatarId String
   user_match   UserMatch[]
   user_answere UserAnswere[]
   invoice      Invoice[]
@@ -144,11 +143,11 @@ model Invoice {
   Diamond   Diamond?      @relation(fields: [diamondId], references: [id])
   diamondId String?
 
+
   created_at DateTime @default(now())
   updated_at DateTime @default(now()) @updatedAt
 
   @@map("invoices")
-}
 
 model Diamond {
   id       String    @id @unique @default(uuid())
@@ -167,3 +166,4 @@ enum InvoiceStatus {
   PAID
   CANCLE
 }
+
