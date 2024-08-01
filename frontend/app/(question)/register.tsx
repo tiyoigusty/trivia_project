@@ -2,19 +2,22 @@ import {
   ImageBackground,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
   Image,
-  Alert,
 } from "react-native";
 import { Button, ThemeProvider } from "@rneui/themed";
 import { loginTheme } from "@/theme/login-theme";
+import * as WebBrowser from "expo-web-browser"
+import { useRouter } from "expo-router";
+
 
 export default function HomeScreen() {
+  const router = useRouter()
   const handleGoogleSignIn = () => {
-    Alert.alert("Google Sign In");
+          router.navigate("/selectavatar")
+      // WebBrowser.openAuthSessionAsync(`http://ae9b-182-253-54-251.ngrok-free.app/google/redirect`);
+      
   };
-
   const styles = StyleSheet.create({
     background: {
       flex: 1,
