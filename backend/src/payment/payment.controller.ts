@@ -1,12 +1,12 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { PaymentService } from './payment.service';
+import { MidtransService } from './midtrans/midtrans.service';
 
 @Controller('payment')
 export class PaymentController {
-  constructor(private readonly paymentService: PaymentService) { }
+  constructor(private readonly midtransService: MidtransService) { }
 
   @Post('create')
-  async createTransaction(@Body() body: { orderId: string, amount: number }) {
-    return this.paymentService.createTransaction(body.orderId, body.amount);
+  async create() {
+    return this.midtransService.pay();
   }
 }
