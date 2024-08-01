@@ -13,4 +13,4 @@ import { PaymentModule } from './payment/payment.module';
   controllers: [AppController],
   providers: [AppService, GatewayService, PrismaService],
 })
-export class AppModule {}
+export class AppModule { }
