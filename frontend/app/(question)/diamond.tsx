@@ -1,3 +1,5 @@
+import { api } from "@/libs/api";
+import axios from "axios";
 import { LinearGradient } from "expo-linear-gradient";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 

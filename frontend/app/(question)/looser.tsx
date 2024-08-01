@@ -1,4 +1,6 @@
 import { Avatar } from "@rneui/themed";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import {
   Image,
   ImageBackground,
@@ -8,7 +10,26 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+type Avatar = {
+  id: string;
+  image: string;
+};
+
 export default function Looser() {
+  // const [avatar, setAvatar] = useState<Avatar[]>([]);
+
+  // useEffect(() => {
+  //   async function getDataAvatar() {
+  //     const response = await axios({
+  //       method: "get",
+  //       url: "http://192.168.18.169:3000/avatar",
+  //     });
+  //     setAvatar(response.data);
+  //     console.log(response.data);
+  //   }
+  //   getDataAvatar();
+  // }, []);
+
   return (
     <ImageBackground
       style={{
@@ -46,6 +67,20 @@ export default function Looser() {
             Agik Gigih Sulistyo
           </Text>
         </View>
+
+        {/* <View
+          style={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}
+        >
+          {avatar.map((data) => {
+            return (
+              <Image
+                key={data.id}
+                source={{ uri: data.image }}
+                style={{ width: 100, height: 100 }}
+              />
+            );
+          })}
+        </View> */}
 
         <View
           style={{
