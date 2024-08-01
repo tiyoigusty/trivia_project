@@ -4,9 +4,6 @@ import { useState } from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
 import Dialog from "react-native-dialog";
 
-const AvatarDefault = {
-  uri: "https://static.vecteezy.com/system/resources/thumbnails/027/951/137/small_2x/stylish-spectacles-guy-3d-avatar-character-illustrations-png.png",
-};
 
 export default function Headers() {
   const [visible, setVisible] = useState(false);
@@ -21,7 +18,7 @@ export default function Headers() {
 
   return (
     <View style={styles.container}>
-      <Image source={AvatarDefault} style={styles.logo} />
+      <Image source={require('@/assets/images/logo.png')} style={styles.logo} />
       <View style={styles.rightContainer}>
         <View style={styles.containerfree}>
           <Text style={styles.diamondCountfree}>21</Text>
