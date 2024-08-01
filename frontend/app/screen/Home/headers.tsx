@@ -42,7 +42,10 @@ export default function Headers() {
           buttonStyle={styles.addButton}
           onPress={showDialog}
         />
-        <Dialog.Container visible={visible}>
+        <Dialog.Container
+          contentStyle={{ backgroundColor: "#rgba(0,0,0, .8)" }}
+          visible={visible}
+        >
           <Diamond onClose={handleCancel} />
         </Dialog.Container>
       </View>

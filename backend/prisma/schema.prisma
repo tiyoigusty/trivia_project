@@ -14,20 +14,156 @@ datasource db {
 }
 
 model User {
-  id      Int    @id @unique @default(autoincrement())
-  name    String
-  avatar  String
-  coin    Int
-  diamond Int
-  emailId String
+  id           String        @id @unique @default(uuid())
+  email        String?
+  username     String?
+  name         String
+  password     String?
+  avatar       String
+  coin         Int           @default(0)
+  diamond      Int           @default(0)
+  google_id    String
+  user_avatar  UserAvatar[]
+  userAvatarId String
+  user_match   UserMatch[]
+  user_answere UserAnswere[]
+  invoice      Invoice[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
 
   @@map("users")
 }
 
+model UserAvatar {
+  id       String  @id @unique @default(uuid())
+  User     User    @relation(fields: [userId], references: [id])
+  userId   String
+  Avatar   Avatar? @relation(fields: [avatarId], references: [id])
+  avatarId String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  @@map("useravatars")
+}
+
 model Avatar {
-  id    Int    @id @unique @default(autoincrement())
-  name  String
-  image String
+  id          String       @id @unique @default(uuid())
+  image       String
+  coin        Int?
+  diamond     Int?
+  user_avatar UserAvatar[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
 
   @@map("avatars")
+}
+
+model UserMatch {
+  id       String  @id @unique @default(uuid())
+  score    Int
+  ringking Int
+  User     User?   @relation(fields: [userId], references: [id])
+  userId   String?
+  Match    Match?  @relation(fields: [matchId], references: [id])
+  matchId  String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  @@map("usermatches")
+}
+
+model Match {
+  id         String      @id @unique @default(uuid())
+  status     String
+  start      DateTime    @default(now())
+  end        DateTime    @default(now())
+  user_match UserMatch[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  @@map("matches")
+}
+
+model UserAnswere {
+  id           String    @id @unique @default(uuid())
+  is_correct   Boolean
+  answere_time Int
+  score        Int
+  User         User?     @relation(fields: [userId], references: [id])
+  userId       String?
+  Answere      Answere?  @relation(fields: [answereId], references: [id])
+  answereId    String?
+  Question     Question? @relation(fields: [questionId], references: [id])
+  questionId   String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  @@map("useransweres")
+}
+
+model Answere {
+  id           String        @id @unique @default(uuid())
+  content      String
+  is_correct   Boolean
+  user_answere UserAnswere[]
+  Question     Question?     @relation(fields: [questionId], references: [id])
+  questionId   String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  @@map("answeres")
+}
+
+model Question {
+  id           String        @id @unique @default(uuid())
+  content      String
+  max_score    Int
+  timer        Int
+  answere      Answere[]
+  user_answere UserAnswere[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  @@map("questions ")
+}
+
+model Invoice {
+  id        String        @id @unique @default(uuid())
+  status    InvoiceStatus @default(UNPAID)
+  amount    Int
+  User      User?         @relation(fields: [userId], references: [id])
+  userId    String?
+  Diamond   Diamond?      @relation(fields: [diamondId], references: [id])
+  diamondId String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  @@map("invoices")
+}
+
+model Diamond {
+  id       String    @id @unique @default(uuid())
+  quantity Int
+  price    Int
+  invoice  Invoice[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  @@map("diamonds")
+}
+
+enum InvoiceStatus {
+  UNPAID
+  PAID
+  CANCLE
 }
