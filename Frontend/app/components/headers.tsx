@@ -1,11 +1,10 @@
-import Diamond from "@/app/(question)/diamond";
 import { Button, Icon } from "@rneui/base";
 import { useState } from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 import Dialog from "react-native-dialog";
+import Diamond from "./diamond";
 
-
-export default function Headers() {
+export default function Headers({ data }: { data: any }) {
   const [visible, setVisible] = useState(false);
 
   const showDialog = () => {
@@ -18,22 +17,20 @@ export default function Headers() {
 
   return (
     <View style={styles.container}>
-      <Image source={require('@/assets/images/logo.png')} style={styles.logo} />
+      <Image source={require("@/assets/images/logo.png")} style={styles.logo} />
+
       <View style={styles.rightContainer}>
-        <View style={styles.containerfree}>
-          <Text style={styles.diamondCountfree}>21</Text>
-        </View>
         <Image
           source={require("@/assets/images/diamondfree.png")}
-          style={styles.diamondIconfree}
+          style={{ width: 25, height: 25, zIndex: 1 }}
         />
-        <View style={styles.containerdiamon}>
-          <Text style={styles.diamondCount}>21</Text>
-        </View>
+        <Text style={styles.diamondCountfree}>{data.coin}</Text>
+
         <Image
           source={require("@/assets/images/diamond.png")}
-          style={styles.diamondIcon}
+          style={{ width: 23, height: 23, zIndex: 1 }}
         />
+        <Text style={styles.diamondCount}>{data.diamond}</Text>
         <Button
           icon={<Icon name="add" size={15} color="white" />}
           buttonStyle={styles.addButton}
@@ -43,7 +40,7 @@ export default function Headers() {
           contentStyle={{ backgroundColor: "#rgba(0,0,0, .8)" }}
           visible={visible}
         >
-          <Diamond onClose={handleCancel} />
+          <Diamond onClose={handleCancel} data={data} />
         </Dialog.Container>
       </View>
     </View>
@@ -52,11 +49,11 @@ export default function Headers() {
 
 const styles = StyleSheet.create({
   container: {
+    display: "flex",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: 10,
-    marginTop: 30,
+    marginHorizontal: 30,
   },
   logo: {
     width: 70,
@@ -66,41 +63,29 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
-  containerfree: {
-    flexDirection: "row",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    marginRight: 20,
-    borderRadius: 5,
-  },
-  diamondIconfree: {
-    position: "absolute",
-    width: 20,
-    height: 20,
-  },
   diamondCountfree: {
-    color: "white",
+    color: "black",
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    borderRadius: 5,
     fontSize: 18,
-    paddingLeft: 30,
-  },
-  containerdiamon: {
-    flexDirection: "row",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    borderTopLeftRadius: 5,
-    borderBottomLeftRadius: 5,
-  },
-  diamondIcon: {
-    position: "absolute",
-    left: 70,
-    width: 20,
-    height: 20,
+    marginRight: 10,
+    marginLeft: -10,
+    width: 60,
+    textAlign: "center",
   },
   diamondCount: {
-    color: "white",
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    borderRadius: 5,
+    color: "black",
     fontSize: 18,
-    paddingLeft: 30,
+    width: 70,
+    textAlign: "center",
+    marginHorizontal: -10,
   },
   addButton: {
-    backgroundColor: "#00ff00",
+    backgroundColor: "#e474ba",
+    borderWidth: 1,
+    borderColor: "white",
     padding: 5,
     borderRadius: 5,
   },

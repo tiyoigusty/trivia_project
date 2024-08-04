@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { CreatePaymentDto } from './dto/create-payment.dto';
+import { Body, Controller, Post } from '@nestjs/common';
+import { CreateConfirmDto, CreatePaymentDto } from './dto/create-payment.dto';
 import { PaymentService } from './payment.service';
 
 @Controller('payment')
@@ -11,8 +11,10 @@ export class PaymentController {
     return await this.paymentService.buyDiamond(payment);
   }
 
-  @Get('status/:invoice')
-  async midtransStatus(@Param('invoice') invoiceId: string) {
-    return await this.paymentService.checkPaymentStatus(invoiceId);
+  @Post('confirm')
+  async confirm(@Body() confirmation: CreateConfirmDto) {
+    // console.log('ini confirm', confirmation);
+
+    return await this.paymentService.confirmPayment(confirmation);
   }
 }

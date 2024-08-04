@@ -4,15 +4,15 @@ import { LinearGradient } from "expo-linear-gradient";
 import {
   ActivityIndicator,
   Alert,
-  Button,
   Image,
   Modal,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import { useEffect, useState } from "react";
-import WebView from "react-native-webview";
+import { useState } from "react";
+import { WebView } from "react-native-webview";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 type Diamond = {
   id: string;
@@ -24,24 +24,35 @@ interface DiamondImage extends Diamond {
   image: any; // Ubah tipe menjadi any agar dapat menerima hasil require
 }
 
-export default function Diamond({ onClose }: { onClose: any }) {
-  // const [loading, setLoading] = useState<boolean>(true);
+export default function Diamond({
+  onClose,
+  data,
+}: {
+  onClose: any;
+  data: any;
+}) {
   const [snapToken, setSnapToken] = useState<string | null>(null);
   const [showWebView, setShowWebView] = useState<boolean>(false);
-  const [diamond, setDiamond] = useState<DiamondImage[]>([]);
   const [selectedDiamond, setSelectedDiamond] = useState<Diamond>({
     id: "",
     price: 0,
     quantity: 0,
   });
 
-  useEffect(() => {
-    async function getDataDiamond() {
+  const queryClient = useQueryClient();
+
+  const {
+    data: diamondData,
+    refetch,
+    error,
+    isLoading,
+  } = useQuery<DiamondImage[]>({
+    queryKey: ["diamond"],
+    queryFn: async () => {
       const response = await axios.get<Diamond[]>(`${api}/diamond`);
 
-      const dataDiamond = response.data.map((data, index) => {
+      return response.data.map((data, index) => {
         let image: any;
-
         switch (index) {
           case 0:
             image = require("@/assets/icons/diamond1.png");
@@ -62,7 +73,6 @@ export default function Diamond({ onClose }: { onClose: any }) {
             image = require("@/assets/icons/diamond6.png");
             break;
         }
-
         return {
           id: data.id,
           quantity: data.quantity,
@@ -70,66 +80,47 @@ export default function Diamond({ onClose }: { onClose: any }) {
           image,
         };
       });
-      setDiamond(dataDiamond);
-      console.log("ini data diamond", dataDiamond);
-    }
+    },
+  });
 
-    getDataDiamond();
-  }, []);
-
-  // useEffect(() => {
-  //   const fetchSnapToken = async () => {
-  //     try {
-  //       const response = await axios.post(
-  //         "https://4f5b-2404-8000-1005-37ac-a470-9579-5a3-c59b.ngrok-free.app/payment/create",
-  //         {
-  //           orderId: "order-id-example",
-  //           amount: 100000,
-  //         }
-  //       );
-  //       const snapToken = response.data;
-  //       setSnapToken(snapToken);
-  //     } catch (error) {
-  //       Alert.alert("Error", "Failed to fetch Snap token");
-  //       console.error(error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchSnapToken();
-  // }, []);
-
-  async function buyDiamond(data: any) {
-    try {
+  const buyDiamondMutation = useMutation({
+    mutationFn: async () => {
       const newData = {
-        ...data,
-        user_id: Date.now(),
+        user_id: data.id,
         diamond_id: selectedDiamond.id,
-        amount: selectedDiamond.price,
       };
 
-      const response = await axios({
-        method: "post",
-        url: `https://330c-2404-8000-1005-37ac-6d66-e6ab-4dee-9423.ngrok-free.app/payment/pay`,
-        data: newData,
+      const response = await axios.post(`${api}/payment/pay`, newData, {
         headers: {
           "Content-Type": "application/json",
         },
       });
 
       setSnapToken(response.data.token);
-      console.log("buy", response.data);
-    } catch (error) {
-      console.log(error);
-    }
+      setShowWebView(true);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+      refetch();
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Loading...</Text>
+      </View>
+    );
   }
 
-  useEffect(() => {});
-
-  const handlePayNow = () => {
-    setShowWebView(true);
-  };
+  if (error) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Error loading data...</Text>
+      </View>
+    );
+  }
 
   return (
     <View>
@@ -173,7 +164,7 @@ export default function Diamond({ onClose }: { onClose: any }) {
           flexWrap: "wrap",
         }}
       >
-        {diamond.map((data) => (
+        {diamondData?.map((data) => (
           <LinearGradient
             colors={["#e474ba", "#5881ff"]}
             start={{ x: 1, y: 0 }}
@@ -181,43 +172,22 @@ export default function Diamond({ onClose }: { onClose: any }) {
             style={{ width: 100, height: 120, borderRadius: 10 }}
             key={data.id}
           >
-            {selectedDiamond == data ? (
-              <TouchableOpacity
-                onPress={() => {
-                  setSelectedDiamond(data);
-                }}
-                style={{
-                  height: "100%",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  borderWidth: 3,
-                  borderRadius: 10,
-                  borderColor: "yellow",
-                }}
-              >
-                <Text style={{ fontSize: 20 }}>{data.quantity}</Text>
-                <Image source={data.image} style={{ marginVertical: 10 }} />
-                <Text style={{ fontSize: 20 }}>Rp {data.price}</Text>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                onPress={() => {
-                  setSelectedDiamond(data);
-                }}
-                style={{
-                  height: "100%",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  borderWidth: 2,
-                  borderRadius: 10,
-                  borderColor: "white",
-                }}
-              >
-                <Text style={{ fontSize: 20 }}>{data.quantity}</Text>
-                <Image source={data.image} style={{ marginVertical: 10 }} />
-                <Text style={{ fontSize: 20 }}>Rp {data.price}</Text>
-              </TouchableOpacity>
-            )}
+            <TouchableOpacity
+              onPress={() => setSelectedDiamond(data)}
+              style={{
+                height: "100%",
+                alignItems: "center",
+                justifyContent: "center",
+                borderWidth: 3,
+                borderRadius: 10,
+                borderColor:
+                  selectedDiamond.id === data.id ? "yellow" : "white",
+              }}
+            >
+              <Text style={{ fontSize: 20 }}>{data.quantity}</Text>
+              <Image source={data.image} style={{ marginVertical: 10 }} />
+              <Text style={{ fontSize: 20 }}>Rp {data.price}</Text>
+            </TouchableOpacity>
           </LinearGradient>
         ))}
       </View>
@@ -243,8 +213,6 @@ export default function Diamond({ onClose }: { onClose: any }) {
           <Text style={{ alignSelf: "center" }}>Cancel</Text>
         </TouchableOpacity>
 
-        {/* {loading && <ActivityIndicator size="large" color="#0000ff" />} */}
-
         {!snapToken && (
           <TouchableOpacity
             style={{
@@ -253,7 +221,7 @@ export default function Diamond({ onClose }: { onClose: any }) {
               borderRadius: 5,
               width: 150,
             }}
-            onPress={handlePayNow}
+            onPress={() => buyDiamondMutation.mutate()}
           >
             <Text style={{ alignSelf: "center" }}>Purchase</Text>
           </TouchableOpacity>

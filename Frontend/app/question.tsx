@@ -1,3 +1,4 @@
+import { Link } from "expo-router";
 import {
   Button,
   Image,
@@ -142,14 +143,19 @@ export default function Question() {
                 gap: 80,
               }}
             >
-              <Image
-                source={require("@/assets/icons/delete.png")}
-                style={{ width: 100, height: 100 }}
-              />
-              <Image
-                source={require("@/assets/icons/check.png")}
-                style={{ width: 100, height: 100 }}
-              />
+              <Link href={"/finding-match"}>
+                <Image
+                  source={require("@/assets/icons/delete.png")}
+                  style={{ width: 100, height: 100 }}
+                />
+              </Link>
+
+              <Link href={"/winner"}>
+                <Image
+                  source={require("@/assets/icons/check.png")}
+                  style={{ width: 100, height: 100 }}
+                />
+              </Link>
             </View>
           </View>
         </View>

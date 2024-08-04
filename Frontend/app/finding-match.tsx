@@ -1,4 +1,5 @@
 import { Avatar } from "@rneui/themed";
+import { Link } from "expo-router";
 import { Image, ImageBackground, Text, View } from "react-native";
 import { red } from "react-native-reanimated/lib/typescript/reanimated2/Colors";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -27,10 +28,12 @@ export default function FindingMatch() {
             style={{ width: 80, height: 80 }}
           />
 
-          <Image
-            source={require("@/assets/icons/close.png")}
-            style={{ width: 20, height: 20 }}
-          />
+          <Link href={"/home"}>
+            <Image
+              source={require("@/assets/icons/close.png")}
+              style={{ width: 20, height: 20 }}
+            />
+          </Link>
         </View>
 
         <View style={{ marginTop: 50 }}>
@@ -186,6 +189,10 @@ export default function FindingMatch() {
               </Text>
             </View>
           </View>
+
+          <Link href={"/question"} style={{ fontSize: 50 }}>
+            NEXT
+          </Link>
         </View>
       </SafeAreaView>
     </ImageBackground>

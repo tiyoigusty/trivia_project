@@ -6,7 +6,7 @@ export class DiamondController {
   constructor(private readonly diamondService: DiamondService) {}
 
   @Get()
-  findAll() {
-    return this.diamondService.findAll();
+  async findAll() {
+    return await this.diamondService.findAll();
   }
 }

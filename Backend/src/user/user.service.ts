@@ -3,9 +3,9 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
 import { UpdateUserAvatarDto } from './dto/user.dto';
 import { UpdateUserAvatarSchema } from './schema/user.schema';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class UserService {
@@ -45,7 +45,6 @@ export class UserService {
     return this.prisma.user.update({
       where: { id: userId },
       data: {
-        avatar: avatar.image,
         user_avatar: {
           create: {
             avatarId: avatar.id,

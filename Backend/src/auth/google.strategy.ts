@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { Strategy, VerifyCallback } from 'passport-google-oauth20';
 import { config } from 'dotenv';
-import { PrismaService } from 'src/prisma.service';
+import { Strategy, VerifyCallback } from 'passport-google-oauth20';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 config();
 
@@ -12,7 +12,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     super({
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_SECRET,
-      callbackURL: 'http://ae9b-182-253-54-251.ngrok-free.app/google/redirect',
+      callbackURL: `${process.env.NEST_NGROK_URL}/google/redirect`,
       scope: ['email', 'profile'],
     });
   }
@@ -23,7 +23,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     profile: any,
     done: VerifyCallback,
   ): Promise<any> {
-    const { name, emails, id, photos } = profile;
+    const { name, emails, id } = profile;
 
     // Cek apakah pengguna sudah ada di database
     let user = await this.prisma.user.findUnique({
@@ -36,13 +36,20 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         data: {
           email: emails[0].value,
           name: name.givenName + ' ' + name.familyName,
-          avatar: photos[0].value,
           google_id: id,
-          coin: 0,
-          diamond: 0,
         },
       });
     }
+
+    const freeAvatar = await this.prisma.avatar.findMany({
+      where: { coin: 0, diamond: 0 },
+    });
+
+    freeAvatar.forEach(async (data) => {
+      await this.prisma.userAvatar.create({
+        data: { userId: user.id, avatarId: data.id },
+      });
+    });
 
     done(null, user);
   }

@@ -2,17 +2,30 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { UserModule } from './user/user.module';
-import { GatewayService } from './gateway/gateway.service';
-import { GatewayModule } from './gateway/gateway.module';
-import { AvatarModule } from './avatar/avatar.module';
+import { DiamondService } from './diamond/diamond.service';
 import { PrismaService } from './prisma/prisma.service';
 import { DiamondModule } from './diamond/diamond.module';
 import { PaymentModule } from './payment/payment.module';
+import { PaymentService } from './payment/payment.service';
+import { AvatarModule } from './avatar/avatar.module';
+import { AvatarService } from './avatar/avatar.service';
+import { UsersTestModule } from './users-test/users-test.module';
 
 @Module({
-  imports: [GatewayModule, AvatarModule, DiamondModule, PaymentModule,AuthModule, UserModule],
+  imports: [
+    AuthModule,
+    DiamondModule,
+    PaymentModule,
+    AvatarModule,
+    UsersTestModule,
+  ],
   controllers: [AppController],
-  providers: [AppService, GatewayService, PrismaService],
+  providers: [
+    AppService,
+    DiamondService,
+    PrismaService,
+    PaymentService,
+    AvatarService,
+  ],
 })
-export class AppModule { }
+export class AppModule {}

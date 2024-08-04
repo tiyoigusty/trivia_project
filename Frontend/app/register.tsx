@@ -1,23 +1,20 @@
-import {
-  ImageBackground,
-  StyleSheet,
-  Text,
-  View,
-  Image,
-} from "react-native";
-import { Button, ThemeProvider } from "@rneui/themed";
 import { loginTheme } from "@/theme/login-theme";
-import * as WebBrowser from "expo-web-browser"
+import { Button, ThemeProvider } from "@rneui/themed";
 import { useRouter } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
+import { Image, ImageBackground, StyleSheet, Text, View } from "react-native";
 
+WebBrowser.maybeCompleteAuthSession();
 
-export default function HomeScreen() {
-  const router = useRouter()
+export default function Register() {
+  const router = useRouter();
   const handleGoogleSignIn = () => {
-          router.navigate("/selectavatar")
-      // WebBrowser.openAuthSessionAsync(`http://ae9b-182-253-54-251.ngrok-free.app/google/redirect`);
-      
+    WebBrowser.openAuthSessionAsync(
+      `https://8c92-2404-8000-1005-37ac-90d8-5f15-ae1-89d3.ngrok-free.app/google/redirect`
+    );
+    router.navigate("/selectavatar");
   };
+
   const styles = StyleSheet.create({
     background: {
       flex: 1,
@@ -85,7 +82,7 @@ export default function HomeScreen() {
         style={styles.background}
       >
         <Image
-          source={require("@/assets/images/triviagame.png")}
+          source={require("@/assets/images/logo.png")}
           style={{ width: 200, height: 150, marginTop: 300 }}
         />
         <View style={styles.container}>

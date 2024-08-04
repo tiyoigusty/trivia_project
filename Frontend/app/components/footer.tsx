@@ -1,4 +1,5 @@
 import { Button } from "@rneui/base";
+import { Link } from "expo-router";
 import { useEffect, useState } from "react";
 import { View, Image, StyleSheet } from "react-native";
 import io, { Socket } from "socket.io-client";
@@ -72,7 +73,6 @@ export default function Footers() {
 
   return (
     <View style={styles.countainer4}>
-      <Image source={LogoDefault} style={styles.countainerImage}></Image>
       <Button
         title="Log in"
         loading={false}
@@ -83,6 +83,9 @@ export default function Footers() {
       >
         Start Game
       </Button>
+      <Link href={"/finding-match"} style={{ fontSize: 50 }}>
+        NEXT
+      </Link>
     </View>
   );
 }
@@ -90,11 +93,6 @@ export default function Footers() {
 const styles = StyleSheet.create({
   countainer4: {
     alignItems: "center",
-  },
-  countainerImage: {
-    width: 180,
-    height: 180,
-    justifyContent: "center",
   },
   buttonColor: {
     borderRadius: 10,
