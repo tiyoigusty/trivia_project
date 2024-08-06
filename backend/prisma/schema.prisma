@@ -44,6 +44,7 @@ model UserAvatar {
   created_at DateTime @default(now())
   updated_at DateTime @default(now()) @updatedAt
 
+  @@unique([userId, avatarId])
   @@map("useravatars")
 }
 
