@@ -17,6 +17,7 @@ import Question from "./question";
 import Winner from "./winner";
 import Looser from "./looser";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import SelectAvatarCopy from "./selectavatar-copy";
 
 const queryClient = new QueryClient();
 
@@ -46,7 +47,8 @@ export default function RootLayout() {
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="register" component={Register} />
-          <Stack.Screen name="selectavatar" component={SelectAvatar} />
+          <Stack.Screen name="selectavatar-copy" component={SelectAvatarCopy} />
+          {/* <Stack.Screen name="selectavatar" component={SelectAvatar} /> */}
           <Stack.Screen name="home" component={Home} />
           <Stack.Screen name="finding-match" component={FindingMatch} />
           <Stack.Screen name="question" component={Question} />

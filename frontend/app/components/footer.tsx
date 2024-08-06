@@ -1,29 +1,25 @@
 import { Button } from "@rneui/base";
-import { Link } from "expo-router";
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { View, Image, StyleSheet } from "react-native";
+import { View, Alert, StyleSheet } from "react-native";
 import io, { Socket } from "socket.io-client";
 
-const LogoDefault = {
-  uri: "https://static.vecteezy.com/system/resources/thumbnails/027/951/137/small_2x/stylish-spectacles-guy-3d-avatar-character-illustrations-png.png",
-};
-
-const newSocket = io(
-  "https://a86e-2404-8000-1005-a6b5-c88c-d203-3e06-6e41.ngrok-free.app/"
+const socket: Socket = io(
+  "https://44b6-2404-8000-1005-37ac-2816-cc52-9a6-fedb.ngrok-free.app"
 );
 
-export default function Footers() {
-  //   const [socket, setSocket] = useState<Socket | null>(null);
+export default function StartMatch() {
   const [roomId, setRoomId] = useState("");
   const [messages, setMessages] = useState<string[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
-    newSocket.on("connect", () => {
+    socket.on("connect", () => {
       console.log("Connected to socket server");
     });
 
-    newSocket.on("matchFound", (data) => {
-      console.log(
+    socket.on("matchFound", (data) => {
+      Alert.alert(
         `Match found: Room ID: ${data.roomId}, User ID: ${data.userId}`
       );
       setRoomId(data.roomId);
@@ -33,15 +29,15 @@ export default function Footers() {
       ]);
     });
 
-    newSocket.on("roomFull", (roomId) => {
-      console.log(`Room ${roomId} is full.`);
+    socket.on("roomFull", (roomId) => {
+      Alert.alert(`Room ${roomId} is full.`);
       setMessages((prevMessages) => [
         ...prevMessages,
         `Room ${roomId} is full`,
       ]);
     });
 
-    newSocket.on("userLeft", (userId) => {
+    socket.on("userLeft", (userId) => {
       console.log(`User ${userId} left the room.`);
       setMessages((prevMessages) => [
         ...prevMessages,
@@ -49,60 +45,38 @@ export default function Footers() {
       ]);
     });
 
-    newSocket.on("disconnect", () => {
+    socket.on("disconnect", () => {
       console.log("Disconnected from socket server");
     });
 
     return () => {
-      newSocket.disconnect();
+      socket.disconnect();
     };
   }, []);
 
   const joinRoom = () => {
-    if (newSocket) {
-      newSocket.emit("joinRoom");
-    }
-  };
-
-  const leaveRoom = () => {
-    if (newSocket) {
-      newSocket.emit("leaveRoom");
-      setRoomId("");
-    }
+    socket.emit("joinRoom");
+    router.push("/finding-match");
   };
 
   return (
-    <View style={styles.countainer4}>
+    <View style={styles.container}>
       <Button
-        title="Log in"
-        loading={false}
-        titleStyle={styles.tittleButton}
-        loadingProps={{ size: "small", color: "white" }}
-        buttonStyle={styles.buttonColor}
+        title="Start Game"
+        buttonStyle={styles.button}
         onPress={joinRoom}
-      >
-        Start Game
-      </Button>
-      <Link href={"/finding-match"} style={{ fontSize: 50 }}>
-        NEXT
-      </Link>
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  countainer4: {
+  container: {
     alignItems: "center",
   },
-  buttonColor: {
+  button: {
     borderRadius: 10,
     backgroundColor: "#0ACF83",
     color: "#FFFFFF",
-  },
-  tittleButton: {
-    fontSize: 30,
-  },
-  bgInput: {
-    backgroundColor: "#FFFFFF",
   },
 });

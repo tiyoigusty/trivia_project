@@ -8,8 +8,17 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 
 export default function Question() {
+  const router = useRouter();
+  const handleBack = () => {
+    router.navigate("/home");
+  };
+  const handleNext = () => {
+    router.navigate("/winner");
+  };
+
   return (
     <ImageBackground
       style={{
@@ -143,19 +152,19 @@ export default function Question() {
                 gap: 80,
               }}
             >
-              <Link href={"/finding-match"}>
+              <TouchableOpacity onPress={handleBack}>
                 <Image
                   source={require("@/assets/icons/delete.png")}
                   style={{ width: 100, height: 100 }}
                 />
-              </Link>
+              </TouchableOpacity>
 
-              <Link href={"/winner"}>
+              <TouchableOpacity onPress={handleNext}>
                 <Image
                   source={require("@/assets/icons/check.png")}
                   style={{ width: 100, height: 100 }}
                 />
-              </Link>
+              </TouchableOpacity>
             </View>
           </View>
         </View>

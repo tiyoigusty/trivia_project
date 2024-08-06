@@ -5,27 +5,7 @@ import { useEffect, useState } from "react";
 import { StyleSheet, View, Text, Image, TouchableOpacity } from "react-native";
 import Dialog from "react-native-dialog";
 import AvatarDialog from "./avatar";
-
-interface Avatar {
-  id: string;
-  image: string;
-  diamond: number;
-  coin: number;
-}
-
-interface UserAvatar {
-  id: string;
-  is_active: boolean;
-  Avatar: Avatar;
-}
-
-interface User {
-  id: string;
-  name: string;
-  coin: number;
-  diamond: number;
-  user_avatar: UserAvatar[];
-}
+import { Avatar, User } from "../types/type";
 
 export default function Profile({ data }: { data: User }) {
   const [visible, setVisible] = useState(false);
@@ -38,8 +18,6 @@ export default function Profile({ data }: { data: User }) {
       }
     });
   }, [data]);
-
-  // console.log("useAvatar", useAvatar);
 
   const showDialog = () => {
     setVisible(true);
@@ -87,7 +65,7 @@ export default function Profile({ data }: { data: User }) {
           <AvatarDialog onClose={handleCancel} data={data} />
         </Dialog.Container>
       </View>
-      <Text style={styles.username}>{data?.name}</Text>
+      <Text style={styles.username}>{data?.username}</Text>
     </View>
   );
 }

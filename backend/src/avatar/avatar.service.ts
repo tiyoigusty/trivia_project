@@ -1,14 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UpdateUserDto } from './dto/update-avatar.dto';
 
 @Injectable()
 export class AvatarService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async findAvatar() {
+  async findAvatar(id: string) {
+    const userAvatar = await this.prismaService.userAvatar.findMany({
+      where: { userId: id },
+    });
+
     const avatar = await this.prismaService.avatar.findMany();
 
-    return avatar;
+    const filterdAvatar = avatar.filter((data) => {
+      return !userAvatar.some((value) => {
+        return value.avatarId == data.id;
+      });
+    });
+
+    return filterdAvatar;
   }
 
   async findUserAvatar(id: string) {
@@ -19,7 +30,7 @@ export class AvatarService {
     });
   }
 
-  async changeAvatar(userId: string, avatarId: string) {
+  async changeAvatar(userId: string, userAvatarId: string) {
     try {
       await this.prismaService.userAvatar.updateMany({
         where: { userId },
@@ -27,7 +38,7 @@ export class AvatarService {
       });
 
       const useAvatar = await this.prismaService.userAvatar.update({
-        where: { id: avatarId },
+        where: { id: userAvatarId },
         data: { is_active: true },
       });
 
@@ -37,10 +48,10 @@ export class AvatarService {
     }
   }
 
-  async buyAvatar(userid: string, avatarId: string) {
+  async buyAvatar(userId: string, avatarId: string) {
     try {
       const user = await this.prismaService.user.findUnique({
-        where: { id: userid },
+        where: { id: userId },
         include: { user_avatar: true },
       });
 
@@ -56,11 +67,20 @@ export class AvatarService {
         throw new Error('Avatar not found!');
       }
 
+      const userAvatar = await this.prismaService.userAvatar.findFirst({
+        where: {
+          avatarId,
+          userId,
+        },
+      });
+
+      if (userAvatar) throw new Error('Avatar has owned found!');
+
       if (user.coin < avatar.coin || user.diamond < avatar.diamond) {
         throw new Error('Your coins or diamond is not enough!');
       }
 
-      if (avatar.coin) {
+      if (avatar.coin > 0) {
         await this.prismaService.user.update({
           where: { id: user.id },
           data: {
@@ -69,7 +89,7 @@ export class AvatarService {
             },
           },
         });
-      } else if (avatar.diamond) {
+      } else if (avatar.diamond > 0) {
         await this.prismaService.user.update({
           where: { id: user.id },
           data: {
@@ -99,11 +119,22 @@ export class AvatarService {
       where: { id },
       include: {
         user_avatar: {
-          include: { Avatar: true },
+          include: { Avatar: { select: { image: true } } },
         },
       },
     });
 
     return user;
+  }
+
+  async changeUser(id: string, updateUser: UpdateUserDto) {
+    const updatedUser = await this.prismaService.user.update({
+      where: { id },
+      data: {
+        username: updateUser.username,
+      },
+    });
+
+    return updatedUser;
   }
 }

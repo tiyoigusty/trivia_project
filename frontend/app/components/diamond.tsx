@@ -21,7 +21,7 @@ type Diamond = {
 };
 
 interface DiamondImage extends Diamond {
-  image: any; // Ubah tipe menjadi any agar dapat menerima hasil require
+  image: any;
 }
 
 export default function Diamond({
@@ -141,7 +141,7 @@ export default function Diamond({
                 console.log("Transaction finished", event.url);
                 Alert.alert("Success", "Pembayaran berhasil!");
                 setShowWebView(false);
-                onClose(); // Tutup modal atau layar setelah pembayaran selesai
+                onClose();
               }
             }}
           />

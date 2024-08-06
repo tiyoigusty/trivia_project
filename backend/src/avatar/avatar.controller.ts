@@ -1,13 +1,34 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Res,
+} from '@nestjs/common';
 import { AvatarService } from './avatar.service';
+import { Response } from 'express';
+import { UpdateUserDto } from './dto/update-avatar.dto';
 
 @Controller('avatar')
 export class AvatarController {
   constructor(private readonly avatarService: AvatarService) {}
 
   @Get()
-  async findFree() {
-    return await this.avatarService.findAvatar();
+  @HttpCode(HttpStatus.OK)
+  async findFree(@Res() res: Response) {
+    const id = res.locals.user.id;
+    console.log('ini id', id);
+
+    const avatar = await this.avatarService.findAvatar(id);
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'User successfully updated',
+      data: avatar,
+    });
   }
 
   @Get('user-avatar/:id')
@@ -15,24 +36,59 @@ export class AvatarController {
     return await this.avatarService.findUserAvatar(id);
   }
 
-  @Post(':userId/:avatarId')
+  @Patch('change-avatar/:avatarId')
+  @HttpCode(HttpStatus.OK)
   async updateAvatarUser(
-    @Param('userId') userId: string,
+    @Res() res: Response,
     @Param('avatarId') avatarId: string,
   ) {
-    return await this.avatarService.changeAvatar(userId, avatarId);
+    const id = res.locals.user.id;
+    // console.log('user id controller', id);
+
+    const updateAvatar = await this.avatarService.changeAvatar(id, avatarId);
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'User successfully updated',
+      data: updateAvatar,
+    });
   }
 
-  @Post('buy-avatar/:userId/:avatarId')
-  async buyAvatar(
-    @Param('userId') userId: string,
-    @Param('avatarId') avatarId: string,
-  ) {
-    return await this.avatarService.buyAvatar(userId, avatarId);
+  @Post('buy-avatar/:avatarId')
+  @HttpCode(HttpStatus.OK)
+  async buyAvatar(@Res() res: Response, @Param('avatarId') avatarId: string) {
+    const id = res.locals.user.id;
+    const buyAvatar = await this.avatarService.buyAvatar(id, avatarId);
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'User successfully updated',
+      data: buyAvatar,
+    });
   }
 
-  @Get('user/:id')
-  async findone(@Param('id') id: string) {
-    return await this.avatarService.findUser(id);
+  @Get('user')
+  @HttpCode(HttpStatus.OK)
+  async findone(@Res() res: Response) {
+    const id = res.locals.user.id;
+    // console.log('ini id', id);
+
+    const user = await this.avatarService.findUser(id);
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'User successfully updated',
+      data: user,
+    });
+  }
+
+  @Patch('user')
+  @HttpCode(HttpStatus.OK)
+  async updateUser(@Res() res: Response, @Body() updateUser: UpdateUserDto) {
+    const id = res.locals.user.id;
+
+    const updatedUser = await this.avatarService.changeUser(id, updateUser);
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      message: 'User successfully updated',
+      data: updatedUser,
+    });
   }
 }

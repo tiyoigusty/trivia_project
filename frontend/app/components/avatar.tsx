@@ -6,26 +6,8 @@ import { Image, Text, TouchableOpacity, View } from "react-native";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Dialog from "react-native-dialog";
 import BuyAvatarDialog from "./buy-avatar";
-
-interface Avatar {
-  id: string;
-  image: string;
-  diamond: number;
-  coin: number;
-}
-
-interface UserAvatar {
-  id: string;
-  Avatar: Avatar;
-}
-
-interface User {
-  id: string;
-  name: string;
-  coin: number;
-  diamond: number;
-  user_avatar: UserAvatar[];
-}
+import { User, UserAvatar } from "../types/type";
+import { getToken } from "@/libs/storage";
 
 export default function AvatarDialog({
   onClose,
@@ -46,76 +28,29 @@ export default function AvatarDialog({
 
   const [selectedAvatar, setSelectedAvatar] = useState<UserAvatar>({
     id: "",
+    is_active: false,
     Avatar: { id: "", coin: 0, diamond: 0, image: "" },
   });
-
-  const {
-    data: userAvatarData,
-    error,
-    isLoading,
-    refetch,
-  } = useQuery({
-    queryKey: ["avatar"],
-    queryFn: getMyAvatar,
-  });
-
-  // console.log("user avatar", userAvatarData);
-
-  async function getMyAvatar() {
-    try {
-      const response = await axios({
-        method: "get",
-        url: `${api}/avatar/user-avatar/${data.id}`,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      // console.log(response.data);
-      return response.data;
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  useEffect(() => {
-    getMyAvatar();
-    refetch();
-  }, [userAvatarData]);
 
   const queryClient = useQueryClient();
 
   const changeAvatar = useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async () => {
+      const token = await getToken();
       return await axios({
-        method: "post",
-        url: `${api}/avatar/${id}/${selectedAvatar.id}`,
+        method: "patch",
+        url: `${api}/avatar/change-avatar/${selectedAvatar.id}`,
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user"] });
-      refetch();
-      handleCancel();
+      onClose();
     },
   });
-
-  if (isLoading) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
-
-  if (error) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text>Error loading data...</Text>
-      </View>
-    );
-  }
 
   return (
     <View>
@@ -166,7 +101,7 @@ export default function AvatarDialog({
           flexWrap: "wrap",
         }}
       >
-        {userAvatarData.map((data: UserAvatar) => {
+        {data.user_avatar.map((data: UserAvatar) => {
           if (selectedAvatar == data) {
             return (
               <TouchableOpacity
@@ -256,7 +191,7 @@ export default function AvatarDialog({
             width: 150,
           }}
           onPress={async () => {
-            await changeAvatar.mutateAsync(data.id);
+            await changeAvatar.mutateAsync();
           }}
         >
           <Text style={{ alignSelf: "center" }}>Save</Text>
