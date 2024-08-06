@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { api } from "@/libs/api";
 import { useQuery } from "@tanstack/react-query";
+import { getToken } from "@/libs/storage";
 
 interface Avatar {
   id: string;
@@ -40,12 +41,17 @@ export default function Home() {
     queryFn: getDataUser,
   });
 
+  // console.log("data user dari home", userData);
+  const DataUser = userData?.data;
+
   async function getDataUser() {
+    const token = await getToken();
     const response = await axios({
       method: "get",
-      url: `${api}/avatar/user/69842bf6-b532-45d8-918d-6f4b6300a9ee`,
+      url: `${api}/avatar/user`,
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
     });
 
@@ -82,9 +88,9 @@ export default function Home() {
       }}
     >
       <SafeAreaView>
-        <Headers data={userData} />
+        <Headers data={DataUser} />
         <View style={styles.countainer2}>
-          <Profile data={userData} />
+          <Profile data={DataUser} />
 
           <Footers />
         </View>

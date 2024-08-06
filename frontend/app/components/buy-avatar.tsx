@@ -3,7 +3,8 @@ import { Avatar } from "@rneui/themed";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getToken } from "@/libs/storage";
 
 interface Avatar {
   id: string;
@@ -50,14 +51,15 @@ export default function BuyAvatarDialog({
 
   async function getAvatar() {
     try {
+      const token = await getToken();
       const response = await axios({
         method: "get",
         url: `${api}/avatar`,
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
       });
-      // console.log(response.data);
       return response.data;
     } catch (error) {
       console.log(error);
@@ -67,6 +69,26 @@ export default function BuyAvatarDialog({
   useEffect(() => {
     getAvatar();
   }, [data]);
+
+  const queryClient = useQueryClient();
+
+  const buyAvatar = useMutation({
+    mutationFn: async () => {
+      const token = await getToken();
+      return await axios({
+        method: "post",
+        url: `${api}/avatar/buy-avatar/${selectedAvatar.id}`,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+      refetch();
+    },
+  });
 
   if (isLoading) {
     return (
@@ -105,7 +127,7 @@ export default function BuyAvatarDialog({
           flexWrap: "wrap",
         }}
       >
-        {avatarData.map((data: Avatar) => {
+        {avatarData?.data?.map((data: Avatar) => {
           if (data.coin !== 0 && data.diamond === 0) {
             if (selectedAvatar == data) {
               return (
@@ -320,6 +342,7 @@ export default function BuyAvatarDialog({
             borderRadius: 5,
             width: 150,
           }}
+          onPress={() => buyAvatar.mutate()}
         >
           <Text style={{ alignSelf: "center" }}>Save</Text>
         </TouchableOpacity>

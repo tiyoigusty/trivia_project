@@ -3,8 +3,9 @@ import { useState } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 import Dialog from "react-native-dialog";
 import Diamond from "./diamond";
+import { User } from "../types/type";
 
-export default function Headers({ data }: { data: any }) {
+export default function Headers({ data }: { data: User }) {
   const [visible, setVisible] = useState(false);
 
   const showDialog = () => {
@@ -24,13 +25,13 @@ export default function Headers({ data }: { data: any }) {
           source={require("@/assets/images/diamondfree.png")}
           style={{ width: 25, height: 25, zIndex: 1 }}
         />
-        <Text style={styles.diamondCountfree}>{data.coin}</Text>
+        <Text style={styles.diamondCountfree}>{data?.coin}</Text>
 
         <Image
           source={require("@/assets/images/diamond.png")}
           style={{ width: 23, height: 23, zIndex: 1 }}
         />
-        <Text style={styles.diamondCount}>{data.diamond}</Text>
+        <Text style={styles.diamondCount}>{data?.diamond}</Text>
         <Button
           icon={<Icon name="add" size={15} color="white" />}
           buttonStyle={styles.addButton}
