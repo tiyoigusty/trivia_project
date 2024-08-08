@@ -21,14 +21,14 @@ export default function Register() {
   const handleGoogleSignIn = async () => {
     const redirectUrl = Linking.createURL("/");
     const response = (await WebBrowser.openAuthSessionAsync(
-      `https://491b-2404-8000-1005-37ac-7935-582-f5f2-5aba.ngrok-free.app/google/redirect?redirectTo=${redirectUrl}`,
+      `${process.env.EXPO_PUBLIC_NGROK_URL}/google/redirect?redirectTo=${redirectUrl}`,
       redirectUrl
     )) as SuccessResponse;
 
     // console.log("ini response", response);
 
     const token: string = response.url.split("=")[1].split("&")[0];
-    console.log("ini token", token);
+    // console.log("ini token", token);
 
     await storeToken(token);
 

@@ -48,7 +48,6 @@ export default function RootLayout() {
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="register" component={Register} />
           <Stack.Screen name="selectavatar-copy" component={SelectAvatarCopy} />
-          {/* <Stack.Screen name="selectavatar" component={SelectAvatar} /> */}
           <Stack.Screen name="home" component={Home} />
           <Stack.Screen name="finding-match" component={FindingMatch} />
           <Stack.Screen name="question" component={Question} />

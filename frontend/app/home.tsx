@@ -1,34 +1,15 @@
-import { StyleSheet, ImageBackground, View, Text } from "react-native";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { api } from "@/libs/api";
+import { getToken } from "@/libs/storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Button } from "@rneui/base";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { useRouter } from "expo-router";
+import { useEffect } from "react";
+import { ImageBackground, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Headers from "./components/headers";
 import Profile from "./components/profile";
-import Footers from "./components/footer";
-import { useEffect, useState } from "react";
-import axios from "axios";
-import { api } from "@/libs/api";
-import { useQuery } from "@tanstack/react-query";
-import { getToken } from "@/libs/storage";
-
-interface Avatar {
-  id: string;
-  image: string;
-  diamond: number;
-  coin: number;
-}
-
-interface UserAvatar {
-  id: string;
-  is_active: boolean;
-  Avatar: Avatar;
-}
-
-interface User {
-  id: string;
-  name: string;
-  coin: number;
-  diamond: number;
-  user_avatar: UserAvatar[];
-}
 
 export default function Home() {
   const {
@@ -41,7 +22,6 @@ export default function Home() {
     queryFn: getDataUser,
   });
 
-  // console.log("data user dari home", userData);
   const DataUser = userData?.data;
 
   async function getDataUser() {
@@ -62,6 +42,23 @@ export default function Home() {
     getDataUser();
     refetch();
   }, [userData]);
+
+  const router = useRouter();
+
+  const joinRoom = async () => {
+    try {
+      await AsyncStorage.setItem("userData", JSON.stringify(DataUser));
+      router.push("/finding-match");
+    } catch (e) {
+      console.error("Failed to save user data", e);
+    }
+  };
+
+  // Adding this effect to refetch user data when the component mounts
+  useEffect(() => {
+    getDataUser();
+    refetch();
+  }, []);
 
   if (isLoading) {
     return (
@@ -89,22 +86,21 @@ export default function Home() {
     >
       <SafeAreaView>
         <Headers data={DataUser} />
-        <View style={styles.countainer2}>
+        <View style={{ justifyContent: "space-between", marginTop: 20 }}>
           <Profile data={DataUser} />
 
-          <Footers />
+          <View style={{ alignItems: "center" }}>
+            <Button
+              title="Start Game"
+              buttonStyle={{
+                borderRadius: 10,
+                backgroundColor: "#0ACF83",
+              }}
+              onPress={joinRoom}
+            />
+          </View>
         </View>
       </SafeAreaView>
     </ImageBackground>
   );
 }
-
-const styles = StyleSheet.create({
-  countainerprov: {
-    display: "flex",
-  },
-  countainer2: {
-    justifyContent: "space-between",
-    marginTop: 20,
-  },
-});
