@@ -1,8 +1,8 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Avatar } from "@rneui/themed";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  Alert,
   Image,
   ImageBackground,
   Text,
@@ -10,52 +10,65 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { io, Socket } from "socket.io-client";
+import { User, UserAvatar } from "./types/type";
+import { socket } from "./utils/socket";
 
-const socket: Socket = io(
-  "https://44b6-2404-8000-1005-37ac-2816-cc52-9a6-fedb.ngrok-free.app"
-);
+type Players = {
+  avatar: string;
+  username: string;
+};
 
 export default function FindingMatch() {
   const router = useRouter();
-  const handleBack = () => {
-    router.navigate("/home");
-  };
-
+  const [userId, setUserId] = useState<User | null>(null);
   const [playersCount, setPlayersCount] = useState<number>(0);
-  const [elapsedTime, setElapsedTime] = useState<number>(0);
+  const [players, setPlayers] = useState<Players[]>([]);
+
+  // console.log("ini player", players);
 
   useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userDataString = await AsyncStorage.getItem("userData");
+        if (userDataString) {
+          const userData = JSON.parse(userDataString);
+          setUserId(userData.id);
+        }
+      } catch (e) {
+        console.error("Failed to load user data", e);
+      }
+    };
+
+    fetchUserData();
+
+    if (socket && userId) socket.emit("joinRoom", { id: userId });
+
     socket.on("connect", () => {
       console.log("Connected to socket server");
     });
 
-    socket.on("updatePlayers", (count: number) => {
-      setPlayersCount(count);
+    socket.on("updatePlayers", (players) => {
+      console.log("Received updatePlayers event with data:", players);
+      setPlayers(players);
+      setPlayersCount(players.length);
     });
 
-    socket.on("timerUpdate", (time: number) => {
-      console.log("Timer update:", time); // Debug log
-      setElapsedTime(time);
+    socket.on("startMatch", (data) => {
+      console.log("Match started with data:", data);
+      router.push("/question");
     });
 
-    socket.on("matchTimeout", (roomId: string) => {
-      Alert.alert("Time Out", `Matchmaking timed out for room ${roomId}`);
-    });
+    // socket.on("test", (data) => {
+    //   console.log(data);
+    // });
 
     socket.on("disconnect", () => {
       console.log("Disconnected from socket server");
     });
+  }, [socket, userId]);
 
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins < 10 ? "0" : ""}${mins}:${secs < 10 ? "0" : ""}${secs}`;
+  const handleBack = () => {
+    router.navigate("/home");
   };
 
   return (
@@ -91,18 +104,18 @@ export default function FindingMatch() {
 
         <View style={{ marginTop: 50 }}>
           <Text style={{ color: "#e474ba", fontSize: 80, alignSelf: "center" }}>
-            {formatTime(elapsedTime)}
+            01:00
           </Text>
           <Text style={{ color: "white", fontSize: 40, alignSelf: "center" }}>
             Finding Opponent
           </Text>
           <Text style={{ color: "white", fontSize: 40, alignSelf: "center" }}>
-            <Text style={{ color: "#5881ff" }}>{playersCount}</Text>/5
+            <Text style={{ color: "#5881ff" }}>{playersCount}</Text>/3
           </Text>
         </View>
 
         <View style={{ marginTop: 30, display: "flex", gap: 20 }}>
-          {Array.from({ length: playersCount }, (_, index) => (
+          {players.map((player, index) => (
             <View
               key={index}
               style={{
@@ -123,20 +136,17 @@ export default function FindingMatch() {
                 size={"medium"}
                 rounded
                 source={{
-                  uri: "https://img.freepik.com/free-psd/3d-render-avatar-character_23-2150611716.jpg?ga=GA1.1.1613538227.1710145113&semt=ais_user",
+                  uri: player.avatar,
                 }}
               />
+
               <View>
                 <Text style={{ color: "white", fontSize: 28 }}>
-                  Player {index + 1}
+                  {player.username}
                 </Text>
               </View>
             </View>
           ))}
-
-          {/* <Link href={"/question"} style={{ fontSize: 50 }}>
-            NEXT
-          </Link> */}
         </View>
       </SafeAreaView>
     </ImageBackground>

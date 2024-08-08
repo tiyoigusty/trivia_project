@@ -13,6 +13,9 @@ import { PrismaService } from './prisma/prisma.service';
 import { UsersTestModule } from './users-test/users-test.module';
 import { GoogleController } from './auth/google/google.controller';
 import { AuthService } from './auth/auth.service';
+import { SocketService } from './gateway/gateway.service';
+import { GatewayModule } from './gateway/gateway.module';
+import { QuizModule } from './quiz/quiz.module';
 
 @Module({
   imports: [
@@ -21,6 +24,8 @@ import { AuthService } from './auth/auth.service';
     PaymentModule,
     AvatarModule,
     UsersTestModule,
+    GatewayModule,
+    QuizModule,
   ],
   controllers: [AppController, GoogleController],
   providers: [
@@ -30,6 +35,7 @@ import { AuthService } from './auth/auth.service';
     PaymentService,
     AvatarService,
     AuthService,
+    SocketService,
   ],
 })
 export class AppModule {

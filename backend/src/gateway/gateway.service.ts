@@ -1,4 +1,7 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
 import {
+  ConnectedSocket,
+  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   SubscribeMessage,
@@ -6,101 +9,108 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { PrismaService } from '../prisma/prisma.service';
 
-@WebSocketGateway()
-export class GatewayService
-  implements OnGatewayConnection, OnGatewayDisconnect
-{
+interface Player {
+  id: string;
+  username: string;
+  avatar: string;
+  clientId: string;
+}
+
+interface Room {
+  id: string;
+  players: Player[];
+}
+
+@Injectable()
+@WebSocketGateway({
+  cors: {
+    origin: '*',
+  },
+})
+export class SocketService implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-  private rooms: Map<string, string[]> = new Map();
-  private intervals: Map<string, NodeJS.Timeout> = new Map();
-  private matchTimers: Map<string, number> = new Map();
+  private rooms: Room[] = [];
 
-  private getAvailableRoomId(): string | null {
-    for (const [roomId, clients] of this.rooms.entries()) {
-      if (clients.length < 5) {
-        return roomId;
-      }
-    }
-    return null;
-  }
-
-  private leaveAllRooms(client: Socket): void {
-    for (const [roomId, clients] of this.rooms.entries()) {
-      const index = clients.indexOf(client.id);
-      if (index !== -1) {
-        clients.splice(index, 1);
-        client.leave(roomId);
-        this.server.to(roomId).emit('userLeft', client.id);
-        if (clients.length === 0) {
-          this.rooms.delete(roomId);
-          if (this.intervals.has(roomId)) {
-            clearInterval(this.intervals.get(roomId));
-            this.intervals.delete(roomId);
-            this.matchTimers.delete(roomId);
-          }
-        }
-        break;
-      }
-    }
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   handleConnection(client: Socket) {
-    console.log('client connect', client.id);
+    console.log('Client connected:', client.id);
   }
 
   handleDisconnect(client: Socket) {
-    console.log('client disconnect', client.id);
-    this.leaveAllRooms(client);
+    console.log(`Client disconnected: ${client.id}`);
+    console.log('room', this.rooms);
+    // Mencari room yang mengandung client.id
+    const playerRoom = this.rooms.find((room) => {
+      return room.players.some((player) => player.clientId === client.id);
+    });
+    // Menghapus player dengan clientId yang sesuai dari playerRoom
+    if (playerRoom) {
+      playerRoom.players = playerRoom.players.filter(
+        (player) => player.clientId !== client.id,
+      );
+      console.log('player', playerRoom);
+      this.server.to(playerRoom.id).emit('updatePlayers', playerRoom.players);
+    }
   }
 
   @SubscribeMessage('joinRoom')
-  handleJoinRoom(client: Socket): void {
-    console.log('Client requested to join room:', client.id);
+  async handleJoinRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() userData: { id: string },
+  ) {
+    console.log('userData', userData);
+    let room = this.rooms.find((x) => x.players.length < 5);
 
-    let roomId = this.getAvailableRoomId();
-
-    if (!roomId) {
-      roomId = client.id;
-      this.rooms.set(roomId, []);
-      this.matchTimers.set(roomId, Date.now()); // set initial start time for the room
+    if (!room) {
+      room = { id: `room-${this.rooms.length + 1}`, players: [] };
+      this.rooms.push(room);
     }
 
-    client.join(roomId);
-    this.rooms.get(roomId).push(client.id);
+    const user = await this.prisma.user.findUnique({
+      where: { id: userData.id },
+      include: { user_avatar: { include: { Avatar: true } } },
+    });
 
-    this.server.to(roomId).emit('matchFound', { roomId, userId: client.id });
+    if (!user) {
+      throw new NotFoundException('user not found!');
+    }
 
-    if (this.rooms.get(roomId).length === 5) {
-      this.server.to(roomId).emit('roomFull', roomId);
-      if (this.intervals.has(roomId)) {
-        clearInterval(this.intervals.get(roomId));
-        this.intervals.delete(roomId);
-        this.matchTimers.delete(roomId);
+    user.user_avatar.forEach((data) => {
+      if (data.is_active == true) {
+        const newPlayer = {
+          id: user.id,
+          username: user.username,
+          avatar: data.Avatar.image,
+          clientId: client.id,
+        };
+
+        if (!room.players.some((player) => player.id === newPlayer.id)) {
+          room.players.push(newPlayer);
+          client.join(room.id);
+          console.log(`User ${user.id} joined room ${room.id}`);
+        }
       }
-    } else if (!this.intervals.has(roomId)) {
-      this.startMatchInterval(roomId);
+    });
+
+    console.log('room player', room.players);
+
+    client.emit('test', {
+      test: 'test',
+    });
+
+    if (room.players.length === 2) {
+      this.server
+        .to(room.id)
+        .emit('startMatch', { room: room.id, players: room.players });
+      this.rooms = this.rooms.filter((x) => x.id !== room.id);
+    } else {
+      console.log('Emitting updatePlayers event:', room.players); // Add this log
+      this.server.to(room.id).emit('updatePlayers', room.players);
     }
-  }
-
-  @SubscribeMessage('leaveRoom')
-  handleLeaveRoom(client: Socket): void {
-    this.leaveAllRooms(client);
-    this.server
-      .to('leaveRoom')
-      .emit('message', `User ${client.id} has left the room`);
-  }
-
-  private startMatchInterval(roomId: string): void {
-    const interval = setInterval(() => {
-      const startTime = this.matchTimers.get(roomId) || Date.now();
-      const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
-
-      this.server.to(roomId).emit('timerUpdate', elapsedTime);
-    }, 1000);
-
-    this.intervals.set(roomId, interval);
   }
 }
