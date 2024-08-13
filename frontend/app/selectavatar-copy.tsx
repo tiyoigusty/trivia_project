@@ -113,15 +113,15 @@ export default function SelectAvatarCopy() {
     },
   });
 
-  async function onSubmit(data: UserForm) {
+  const onSubmit = async (data: UserForm) => {
     try {
       await changeAvatarMutation.mutateAsync();
       await updateUserMutation.mutateAsync(data);
       router.navigate("/home");
     } catch (error) {
-      console.log(error);
+      console.error("Failed to update user or change avatar:", error);
     }
-  }
+  };
 
   if (isLoading) {
     return (

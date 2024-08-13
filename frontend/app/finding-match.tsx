@@ -20,11 +20,9 @@ type Players = {
 
 export default function FindingMatch() {
   const router = useRouter();
-  const [userId, setUserId] = useState<User | null>(null);
   const [playersCount, setPlayersCount] = useState<number>(0);
   const [players, setPlayers] = useState<Players[]>([]);
-
-  // console.log("ini player", players);
+  const [timeElapsed, setTimeElapsed] = useState<number>(0);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -32,7 +30,11 @@ export default function FindingMatch() {
         const userDataString = await AsyncStorage.getItem("userData");
         if (userDataString) {
           const userData = JSON.parse(userDataString);
-          setUserId(userData.id);
+
+          // Emit joinRoom setelah userId didapatkan
+          if (socket && userData.id) {
+            socket.emit("joinRoom", { id: userData.id });
+          }
         }
       } catch (e) {
         console.error("Failed to load user data", e);
@@ -40,8 +42,6 @@ export default function FindingMatch() {
     };
 
     fetchUserData();
-
-    if (socket && userId) socket.emit("joinRoom", { id: userId });
 
     socket.on("connect", () => {
       console.log("Connected to socket server");
@@ -53,22 +53,41 @@ export default function FindingMatch() {
       setPlayersCount(players.length);
     });
 
-    socket.on("startMatch", (data) => {
+    socket.on("startMatch", async (data) => {
       console.log("Match started with data:", data);
-      router.push("/question");
+      await AsyncStorage.setItem("players", JSON.stringify(data.players));
+      router.push({
+        pathname: "/question",
+        params: { players: JSON.stringify(players) },
+      });
     });
-
-    // socket.on("test", (data) => {
-    //   console.log(data);
-    // });
 
     socket.on("disconnect", () => {
       console.log("Disconnected from socket server");
     });
-  }, [socket, userId]);
+
+    const interval = setInterval(() => {
+      setTimeElapsed((prev) => prev + 1);
+    }, 1000);
+
+    return () => {
+      clearInterval(interval);
+      socket.off("updatePlayers");
+      socket.off("startMatch");
+      socket.off("disconnect");
+    };
+  }, []);
 
   const handleBack = () => {
     router.navigate("/home");
+  };
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${String(minutes).padStart(2, "0")}:${String(
+      remainingSeconds
+    ).padStart(2, "0")}`;
   };
 
   return (
@@ -104,7 +123,7 @@ export default function FindingMatch() {
 
         <View style={{ marginTop: 50 }}>
           <Text style={{ color: "#e474ba", fontSize: 80, alignSelf: "center" }}>
-            01:00
+            {formatTime(timeElapsed)}
           </Text>
           <Text style={{ color: "white", fontSize: 40, alignSelf: "center" }}>
             Finding Opponent

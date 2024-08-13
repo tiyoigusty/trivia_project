@@ -1,5 +1,6 @@
 import { Avatar } from "@rneui/themed";
 import axios from "axios";
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   Image,
@@ -16,19 +17,15 @@ type Avatar = {
 };
 
 export default function Looser() {
-  // const [avatar, setAvatar] = useState<Avatar[]>([]);
+  const router = useRouter();
 
-  // useEffect(() => {
-  //   async function getDataAvatar() {
-  //     const response = await axios({
-  //       method: "get",
-  //       url: "http://192.168.18.169:3000/avatar",
-  //     });
-  //     setAvatar(response.data);
-  //     console.log(response.data);
-  //   }
-  //   getDataAvatar();
-  // }, []);
+  const handleBack = () => {
+    router.navigate("/winner");
+  };
+
+  const handleHome = () => {
+    router.navigate("/home");
+  };
 
   return (
     <ImageBackground
@@ -98,6 +95,7 @@ export default function Looser() {
               borderRadius: 5,
               width: 150,
             }}
+            onPress={handleHome}
           >
             <Text style={{ alignSelf: "center" }}>Return to Home</Text>
           </TouchableOpacity>
@@ -108,6 +106,7 @@ export default function Looser() {
               borderRadius: 5,
               width: 150,
             }}
+            onPress={handleBack}
           >
             <Text style={{ alignSelf: "center" }}>Play Again</Text>
           </TouchableOpacity>

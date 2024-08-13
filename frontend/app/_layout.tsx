@@ -1,6 +1,7 @@
 import {
   DarkTheme,
   DefaultTheme,
+  NavigationContainer,
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
@@ -18,6 +19,7 @@ import Winner from "./winner";
 import Looser from "./looser";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import SelectAvatarCopy from "./selectavatar-copy";
+import * as Linking from "expo-linking";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +43,21 @@ export default function RootLayout() {
   if (!loaded) {
     return null;
   }
+
+  // const linking = {
+  //   prefixes: [Linking.createURL("/app")],
+  //   config: {
+  //     screens: {
+  //       register: "register",
+  //       "selectavatar-copy": "selectavatar-copy",
+  //       home: "home",
+  //       "finding-match": "finding-match",
+  //       question: "question",
+  //       winner: "winner",
+  //       looser: "looser",
+  //     },
+  //   },
+  // };
 
   return (
     <QueryClientProvider client={queryClient}>

@@ -1,5 +1,4 @@
-import { Injectable } from '@nestjs/common';
-import { CreateQuizDto } from './dto/create-quiz.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -14,45 +13,38 @@ export class QuizService {
   }
 
   // Memeriksa jawaban yang dipilih oleh pengguna
-  async checkAnswere(
-    answerDto: CreateQuizDto,
-  ): Promise<{ correct: boolean; score: number }> {
-    const { questionId, answerId, userId } = answerDto;
-
-    // Mencari pertanyaan beserta jawabannya
+  async answerQuestion(
+    questionId: string,
+    answereId: string,
+    userId: string,
+  ): Promise<boolean> {
+    // Cari pertanyaan berdasarkan ID
     const question = await this.prisma.question.findUnique({
       where: { id: questionId },
-      include: { answere: true },
+      include: { answere: true }, // Sertakan answere untuk memvalidasi jawaban
     });
 
     if (!question) {
-      throw new Error('Pertanyaan tidak ditemukan');
+      throw new NotFoundException('Question not found');
     }
 
-    // Mencari jawaban yang dipilih
-    const selectedAnswer = await this.prisma.answere.findUnique({
-      where: { id: answerId },
-    });
+    // Cari jawaban yang dipilih oleh user
+    const answere = question.answere.find((ans) => ans.id === answereId);
 
-    if (!selectedAnswer) {
-      throw new Error('Jawaban tidak ditemukan');
+    if (!answere) {
+      throw new NotFoundException('Answere not found');
     }
 
-    // Menentukan apakah jawaban yang dipilih benar
-    const isCorrect = selectedAnswer.is_correct;
-
-    // Menyimpan jawaban pengguna dan menghitung skor
+    // Simpan jawaban user ke dalam tabel UserAnswere
     await this.prisma.userAnswere.create({
       data: {
-        questionId,
-        answereId: answerId,
         userId,
-        is_correct: isCorrect,
-        answere_time: new Date().getTime(),
-        score: isCorrect ? question.max_score : 0,
+        answereId,
+        questionId,
       },
     });
 
-    return { correct: isCorrect, score: isCorrect ? question.max_score : 0 };
+    // Kembalikan nilai is_correct untuk memberitahukan apakah jawaban benar atau salah
+    return answere.is_correct;
   }
 }

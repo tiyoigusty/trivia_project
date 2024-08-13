@@ -1,4 +1,5 @@
 import { Avatar } from "@rneui/themed";
+import { useRouter } from "expo-router";
 import {
   Image,
   ImageBackground,
@@ -9,6 +10,16 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Winner() {
+  const router = useRouter();
+
+  const handleBack = () => {
+    router.navigate("/looser");
+  };
+
+  const handleHome = () => {
+    router.navigate("/home");
+  };
+
   return (
     <ImageBackground
       style={{
@@ -68,6 +79,7 @@ export default function Winner() {
               borderRadius: 5,
               width: 150,
             }}
+            onPress={handleHome}
           >
             <Text style={{ alignSelf: "center" }}>Return to Home</Text>
           </TouchableOpacity>
@@ -78,6 +90,7 @@ export default function Winner() {
               borderRadius: 5,
               width: 150,
             }}
+            onPress={handleBack}
           >
             <Text style={{ alignSelf: "center" }}>Play Again</Text>
           </TouchableOpacity>

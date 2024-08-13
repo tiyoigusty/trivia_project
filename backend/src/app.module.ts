@@ -13,9 +13,10 @@ import { PrismaService } from './prisma/prisma.service';
 import { UsersTestModule } from './users-test/users-test.module';
 import { GoogleController } from './auth/google/google.controller';
 import { AuthService } from './auth/auth.service';
-import { SocketService } from './gateway/gateway.service';
+import { RoomService, SocketService } from './gateway/gateway.service';
 import { GatewayModule } from './gateway/gateway.module';
 import { QuizModule } from './quiz/quiz.module';
+import { MatchService } from './gateway/start-match';
 
 @Module({
   imports: [
@@ -36,6 +37,8 @@ import { QuizModule } from './quiz/quiz.module';
     AvatarService,
     AuthService,
     SocketService,
+    MatchService,
+    RoomService,
   ],
 })
 export class AppModule {

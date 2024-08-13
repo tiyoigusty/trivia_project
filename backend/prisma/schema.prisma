@@ -78,7 +78,6 @@ model UserMatch {
 
 model Match {
   id         String      @id @unique @default(uuid())
-  status     String
   start      DateTime    @default(now())
   end        DateTime    @default(now())
   user_match UserMatch[]

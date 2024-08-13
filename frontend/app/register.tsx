@@ -1,11 +1,11 @@
 import { loginTheme } from "@/theme/login-theme";
 import useStore from "@/zustand/zustand";
 import { Button, ThemeProvider } from "@rneui/themed";
-import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
 import { Image, ImageBackground, StyleSheet, Text, View } from "react-native";
 import { storeToken } from "@/libs/storage";
+import { useRouter } from "expo-router";
 
 type SuccessResponse = {
   type: string;
@@ -18,22 +18,23 @@ export default function Register() {
   const setUser = useStore((state) => state.SET_USER);
 
   const router = useRouter();
+
   const handleGoogleSignIn = async () => {
-    const redirectUrl = Linking.createURL("/");
-    const response = (await WebBrowser.openAuthSessionAsync(
-      `${process.env.EXPO_PUBLIC_NGROK_URL}/google/redirect?redirectTo=${redirectUrl}`,
-      redirectUrl
-    )) as SuccessResponse;
+    try {
+      const redirectUrl = Linking.createURL("/");
+      const response = (await WebBrowser.openAuthSessionAsync(
+        `${process.env.EXPO_PUBLIC_NGROK_URL}/google/redirect?redirectTo=${redirectUrl}`,
+        redirectUrl
+      )) as SuccessResponse;
 
-    // console.log("ini response", response);
+      const token: string = response.url.split("=")[1].split("&")[0];
+      await storeToken(token);
 
-    const token: string = response.url.split("=")[1].split("&")[0];
-    // console.log("ini token", token);
-
-    await storeToken(token);
-
-    WebBrowser.dismissBrowser();
-    router.navigate("/selectavatar-copy");
+      WebBrowser.dismissBrowser();
+      router.navigate("/selectavatar-copy");
+    } catch (error) {
+      console.error("Google Sign-In failed:", error);
+    }
   };
 
   return (
