@@ -15,7 +15,6 @@ import { GoogleController } from './auth/google/google.controller';
 import { AuthService } from './auth/auth.service';
 import { SocketService } from './gateway/gateway.service';
 import { GatewayModule } from './gateway/gateway.module';
-import { QuizModule } from './quiz/quiz.module';
 
 @Module({
   imports: [
@@ -25,7 +24,6 @@ import { QuizModule } from './quiz/quiz.module';
     AvatarModule,
     UsersTestModule,
     GatewayModule,
-    QuizModule,
   ],
   controllers: [AppController, GoogleController],
   providers: [

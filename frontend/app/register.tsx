@@ -14,10 +14,9 @@ type SuccessResponse = {
 
 WebBrowser.maybeCompleteAuthSession();
 
-export default function Register() {
+export default function Register({navigation}:{navigation:any}) {
   const setUser = useStore((state) => state.SET_USER);
 
-  const router = useRouter();
   const handleGoogleSignIn = async () => {
     const redirectUrl = Linking.createURL("/");
     const response = (await WebBrowser.openAuthSessionAsync(
@@ -33,7 +32,7 @@ export default function Register() {
     await storeToken(token);
 
     WebBrowser.dismissBrowser();
-    router.navigate("/selectavatar-copy");
+    navigation.navigate("selectavatar-copy");
   };
 
   return (
